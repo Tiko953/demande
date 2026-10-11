@@ -399,7 +399,7 @@ deck.onclick = () => {
 /* Le "Non" qui fuit */
 const yes = document.getElementById('yes'), no = document.getElementById('no');
 const noTexts = ['Non', "t'es sûre ?", 'réfléchis bien 🤨', 'et mes bons plans NY ?', 'le 2005 pleure 😢', '♟️ échec… mais pas mat', 'dernière chance…'];
-let tries = 0, tired = false;
+let tries = 0, tired = false, lastDodge = 0;
 function resetNo(){
   tries = 0; tired = false;
   no.classList.remove('free'); no.style.left = no.style.top = '';
@@ -407,6 +407,7 @@ function resetNo(){
 }
 function dodge(){
   if (tired) return;
+  lastDodge = Date.now();
   tries++;
   const w = no.offsetWidth, h = no.offsetHeight, m = 16;
   const r = no.getBoundingClientRect();
@@ -428,10 +429,16 @@ function dodge(){
   else no.textContent = noTexts[tries];
 }
 no.addEventListener('mouseenter', dodge);
-no.addEventListener('pointerdown', e => { if (!tired) { e.preventDefault(); dodge(); } });
-no.addEventListener('click', e => { if (tired) { decided = true; track('❌ Elle a cliqué Non (après ' + tries + ' fuites du bouton)'); go(END_NO); } else { e.preventDefault(); dodge(); } });
+// Téléphone : on bloque le toucher dès le départ, sinon le « clic » retombe sur le Oui
+no.addEventListener('touchstart', e => { if (!tired) { e.preventDefault(); dodge(); } }, { passive: false });
+no.addEventListener('pointerdown', e => { if (!tired && e.pointerType !== 'touch') { e.preventDefault(); dodge(); } });
+no.addEventListener('click', e => {
+  if (tired) { decided = true; track('❌ Elle a cliqué Non (après ' + tries + ' fuites du bouton)'); go(END_NO); }
+  else { e.preventDefault(); if (Date.now() - lastDodge > 400) dodge(); }
+});
 
 yes.onclick = () => {
+  if (Date.now() - lastDodge < 700) return;   // clic fantôme juste après la fuite du Non
   decided = true;
   track('✅ ELLE A DIT OUI !' + (tries ? ' (après ' + tries + ' fuites du Non)' : ' (direct)'));
   no.classList.remove('free');
