@@ -25,8 +25,9 @@ body{
 
 /* Musique */
 .music{position:fixed;top:12px;right:12px;z-index:40;display:flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:4px 10px 4px 4px;box-shadow:3px 3px 0 var(--ink);font:700 11px/1.2 'Space Mono',monospace}
-.music .vid{width:80px;height:45px;border-radius:8px;overflow:hidden;background:#111;flex:none}
-.music iframe{width:80px;height:45px;display:block}
+.music .disc{font-size:28px;line-height:1;margin-left:4px}
+.music .disc.spin{animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .music button{border:none;background:var(--snap);border:2px solid var(--ink);border-radius:99px;width:30px;height:30px;font-size:13px;cursor:pointer;flex:none}
 .music .t b{display:block;font-size:12px}
 .slide{display:none;width:100%;max-width:440px}
@@ -265,8 +266,9 @@ p{font-size:17px;line-height:1.45;margin:10px 0}
 </main>
 
 <div class="music" id="music">
-  <div class="vid"><div id="yt"></div></div>
-  <div class="t"><b>Cléopâtre</b>Tiakola</div>
+  <div class="disc" id="disc">💿</div>
+  <div class="t"><b>Cléopâtre</b>version Hakim</div>
+  <audio id="bgm" src="musique/cleopatre.mp3" loop preload="auto"></audio>
   <button id="musicBtn" aria-label="Lecture / pause">▶</button>
 </div>
 
@@ -277,7 +279,7 @@ p{font-size:17px;line-height:1.45;margin:10px 0}
 const CONFIG = {
   snap: "tiko_953",
   notif: "snap-tiko-6b412ee05a9b",   // canal ntfy.sh : abonne-toi à ce nom dans l'appli ntfy
-  music: { youtubeId: "Wjve0_ts0Eo", start: 0, volume: 45 },   // Tiakola - Cléopâtre, chaîne officielle
+  volume: 0.6,   // volume de la musique (0 à 1)
   ny: [
     ["photos/ny-pizza.jpg", "la vraie pizza new-yorkaise 🍕"],
     ["photos/ny-carlos.jpg", "Carlo's Bakery, spot validé"],
@@ -447,29 +449,14 @@ document.getElementById('snapLink').href = 'https://www.snapchat.com/add/' + enc
 
 go(0);
 
-/* Musique de fond : lecteur YouTube officiel, lancé au premier clic */
-let player = null, playerReady = false, wantPlay = false;
-const musicBtn = document.getElementById('musicBtn');
-window.onYouTubeIframeAPIReady = () => {
-  const m = CONFIG.music;
-  player = new YT.Player('yt', {
-    width: 80, height: 45, videoId: m.youtubeId,
-    playerVars: { start: m.start, loop: 1, playlist: m.youtubeId, controls: 0, playsinline: 1, rel: 0, modestbranding: 1 },
-    events: {
-      onReady: e => { playerReady = true; e.target.setVolume(m.volume); if (wantPlay) e.target.playVideo(); },
-      onStateChange: e => { musicBtn.textContent = e.data === YT.PlayerState.PLAYING ? '❚❚' : '▶'; }
-    }
-  });
-};
-const yts = document.createElement('script');
-yts.src = 'https://www.youtube.com/iframe_api';
-document.head.appendChild(yts);
-function startMusic(){ wantPlay = true; if (playerReady) player.playVideo(); }
+/* Musique de fond : lancée au premier clic */
+const bgm = document.getElementById('bgm'), musicBtn = document.getElementById('musicBtn'), disc = document.getElementById('disc');
+bgm.volume = CONFIG.volume;
+bgm.addEventListener('play', () => { musicBtn.textContent = '❚❚'; disc.classList.add('spin'); });
+bgm.addEventListener('pause', () => { musicBtn.textContent = '▶'; disc.classList.remove('spin'); });
+const startMusic = () => bgm.play().catch(() => {});
 document.querySelector('.slide .next').addEventListener('click', startMusic, { once: true });
-musicBtn.onclick = () => {
-  if (!playerReady) return startMusic();
-  player.getPlayerState() === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
-};
+musicBtn.onclick = () => bgm.paused ? startMusic() : bgm.pause();
 
 function confetti(){
   const em = ['👻', '💛', '🗽', '✨', '🎉', '🍎'];
