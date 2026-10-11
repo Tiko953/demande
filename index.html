@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dossier confidentiel</title>
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Caveat:wght@600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff8d6; --ink:#141414; --snap:#fffc00; --card:#ffffff;
+  --muted:#5d5d5d; --red:#e5322d; --pink:#ff5fa2; --green:#1fa463;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  overflow-x:hidden; -webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(#00000012 1px,transparent 1px); background-size:18px 18px;
+}
+.stage{min-height:100dvh;display:grid;place-items:center;padding:84px 16px 96px}
+
+/* Musique */
+.music{position:fixed;top:12px;right:12px;z-index:40;display:flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:4px 10px 4px 4px;box-shadow:3px 3px 0 var(--ink);font:700 11px/1.2 'Space Mono',monospace}
+.music .vid{width:80px;height:45px;border-radius:8px;overflow:hidden;background:#111;flex:none}
+.music iframe{width:80px;height:45px;display:block}
+.music button{border:none;background:var(--snap);border:2px solid var(--ink);border-radius:99px;width:30px;height:30px;font-size:13px;cursor:pointer;flex:none}
+.music .t b{display:block;font-size:12px}
+.slide{display:none;width:100%;max-width:440px}
+.slide.on{display:block;animation:in .55s cubic-bezier(.2,.9,.3,1.25)}
+@keyframes in{from{opacity:0;transform:translateY(28px) rotate(-2deg) scale(.96)}}
+
+.card{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--ink);padding:22px 20px 24px;position:relative}
+.kicker{font:700 11px/1.4 'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+h1{font-weight:800;font-size:clamp(30px,9vw,42px);line-height:1.02;letter-spacing:-.02em;margin-bottom:12px}
+h2{font-weight:800;font-size:clamp(25px,7.4vw,32px);line-height:1.05;letter-spacing:-.015em;margin-bottom:10px}
+p{font-size:17px;line-height:1.45;margin:10px 0}
+.small{font-size:13px;color:var(--muted)}
+.hand{font-family:'Caveat',cursive;font-size:24px;line-height:1.1}
+.hl{background:var(--snap);padding:0 .18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+
+.btn{font:800 18px 'Bricolage Grotesque',sans-serif;color:var(--ink);border:3px solid var(--ink);background:var(--snap);border-radius:999px;padding:13px 22px;box-shadow:4px 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s;text-decoration:none;display:inline-block;touch-action:manipulation}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.ghost{background:#fff}
+.btn.pink{background:var(--pink);color:#fff}
+
+/* Polaroid */
+.pola{background:#fff;border:3px solid var(--ink);padding:10px 10px 0;box-shadow:5px 5px 0 var(--ink);transform:rotate(var(--r,-3deg));margin:4px auto 20px;max-width:300px}
+.pola .ph{aspect-ratio:4/5;overflow:hidden;background:#eee}
+.pola img,.pola video{width:100%;height:100%;object-fit:cover;display:block}
+.clips{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 4px}
+.clips .pola{margin:0;padding:7px 7px 0;box-shadow:4px 4px 0 var(--ink)}
+.clips .pola .ph{aspect-ratio:9/16}
+.clips figcaption{font-size:19px;padding:6px 2px 8px}
+.pola figcaption{font-family:'Caveat',cursive;font-size:23px;text-align:center;padding:8px 4px 10px}
+.missing{width:100%;height:100%;display:grid;place-items:center;text-align:center;padding:12px;font:12px/1.4 'Space Mono',monospace;color:#777;background:repeating-linear-gradient(45deg,#f4f4f4 0 10px,#eaeaea 10px 20px)}
+.missing b{display:block;font-size:30px;margin-bottom:6px}
+
+.stamp{position:absolute;top:-16px;right:-6px;transform:rotate(12deg);border:3px solid var(--red);color:var(--red);font:700 14px 'Space Mono',monospace;padding:4px 10px;border-radius:6px;background:#fffffff0;animation:stamp .45s .6s both}
+@keyframes stamp{from{opacity:0;transform:rotate(12deg) scale(3)}}
+
+/* Fiche */
+.fiche{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:6px;font-size:16px}
+.fiche dt{font:700 12px/1.9 'Space Mono',monospace;text-transform:uppercase;color:var(--muted)}
+.fiche dd{font-weight:500}
+
+/* Jauges */
+.bar{height:16px;border:3px solid var(--ink);border-radius:99px;overflow:hidden;background:#fff;margin:12px 0 6px}
+.bar i{display:block;height:100%;width:0;background:var(--green);transition:width .12s linear}
+.result{font-weight:800;min-height:1.4em}
+
+/* VS */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:16px 0 8px;text-align:center}
+.vs .side{border:3px solid var(--ink);border-radius:16px;padding:10px 6px;background:#fff;box-shadow:4px 4px 0 var(--ink)}
+.vs .yr{font:700 22px 'Space Mono',monospace}
+.vs .em{font-size:64px;line-height:1.1;display:block}
+.vs .face{width:86px;height:86px;border-radius:12px;object-fit:cover;display:block;margin:4px auto;border:2px solid var(--ink)}
+.vs .mid{font:800 22px 'Bricolage Grotesque';background:var(--snap);border:3px solid var(--ink);border-radius:99px;padding:6px 10px;transform:rotate(-8deg)}
+.wobble{animation:wob 1.6s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(6deg) translateY(-4px)}}
+
+/* NY */
+.deck{position:relative;height:400px;margin:8px 0 6px;cursor:pointer}
+.deck .pola{position:absolute;inset:0 0 auto 0;margin:0 auto;width:min(290px,86%);transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .35s}
+.tap{font:700 11px 'Space Mono',monospace;text-align:center;color:var(--muted);letter-spacing:.08em}
+
+/* Question */
+.ask{text-align:center}
+.ask .btns{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:22px;min-height:120px}
+#yes{transition:transform .25s cubic-bezier(.2,.9,.3,1.4);font-size:22px}
+#no{background:#fff;transition:left .22s ease,top .22s ease}
+#no.free{position:fixed;z-index:50}
+
+/* Progression */
+.dots{position:fixed;left:0;right:0;bottom:16px;width:max-content;margin:auto;display:flex;gap:7px;pointer-events:none;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:6px 10px;z-index:30}
+.dots i{width:9px;height:9px;border-radius:99px;border:2px solid var(--ink);background:#fff;transition:all .3s}
+.dots i.on{width:24px;background:var(--ink)}
+.back{position:fixed;left:12px;bottom:14px;font:700 12px 'Space Mono',monospace;background:#fff;border:2px solid var(--ink);border-radius:99px;color:var(--ink);padding:5px 10px;cursor:pointer;z-index:30}
+@media (max-width:420px){.dots{left:auto;right:12px;margin:0}}
+
+.confetti{position:fixed;top:-40px;font-size:26px;z-index:60;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+
+  <!-- 0 · Intro -->
+  <section class="slide on">
+    <div class="card">
+      <span class="stamp">TOP SECRET</span>
+      <div class="kicker">Dossier confidentiel n°001 · Ne pas transférer</div>
+      <h1>Objet : demande <span class="hl">officielle</span> de Snapchat.</h1>
+      <p>Oui, j'ai fait un site entier au lieu de juste demander. On assume.</p>
+      <figure class="pola" style="--r:3deg" data-photo="photos/moi-miroir.jpg" data-cap="le demandeur, très sérieux"></figure>
+      <div class="row"><button class="btn next">Ouvrir le dossier →</button></div>
+    </div>
+  </section>
+
+  <!-- 1 · Qui suis-je -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°1 · Fiche du suspect</div>
+      <h2>D'abord, les présentations.</h2>
+      <figure class="pola" style="--r:-3deg" data-optional data-photo="photos/moi-statue.jpg" data-cap="photo d'identité (avec une amie)"></figure>
+      <dl class="fiche">
+        <dt>Nom</dt><dd>Hakim</dd>
+        <dt>Né en</dt><dd>2005 <span class="small">(retiens bien ça)</span></dd>
+        <dt>Études</dt><dd>BUT TC <span class="small">👀 ça te dit quelque chose ?</span></dd>
+        <dt>Club</dt><dd>PSG, ultra <span class="small">(désolé d'avance si t'es pour l'OM)</span></dd>
+        <dt>Passion</dt><dd>Les échecs ♟️ <span class="small">(ce site, je l'avais prévu 3 coups à l'avance)</span></dd>
+        <dt>Défauts</dt><dd>Aucun. J'ai vérifié deux fois.</dd>
+        <dt>Talent caché</dt><dd>Faire des sites au lieu de juste demander</dd>
+      </dl>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 1 bis · Preuves vidéo -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°1 bis · Preuves vidéo</div>
+      <h2>Je suis un mec calme.</h2>
+      <div class="clips">
+        <figure class="pola" style="--r:-4deg"><div class="ph"><video src="videos/video-1.mp4" autoplay muted loop playsinline></video></div><figcaption>au Parc (calme)</figcaption></figure>
+        <figure class="pola" style="--r:3deg"><div class="ph"><video src="videos/video-2.mp4" autoplay muted loop playsinline></video></div><figcaption>Paris by night 🚲</figcaption></figure>
+      </div>
+      <p>Bon, sauf au Parc des Princes : <span class="hl">ultra du PSG</span> ❤️💙, ça compte pas. Le reste du temps, je te fais visiter Paris à vélo, tranquille.</p>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 2 · Parfum -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°2 · Rapport olfactif</div>
+      <h2>Info importante : j'aime les parfums <span class="hl">de ouf</span>.</h2>
+      <figure class="pola" style="--r:2deg" data-photo="photos/parfums.jpg" data-cap="une partie de la collection (mes bébés)"></figure>
+      <p>Donc je sentirai <b>toujours</b> bon. Pour une nana comme toi, c'est le minimum syndical.</p>
+      <button class="btn ghost" id="sniff">👃 Sentir l'écran</button>
+      <div class="bar"><i id="sniffBar"></i></div>
+      <p class="result" id="sniffRes"></p>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 3 · Pseudo TikTok -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°3 · Enquête TikTok</div>
+      <h2>J'ai vu ton pseudo : <span class="hl">@urbetterthaneveryone</span></h2>
+      <p>J'ai lancé une vérification pour savoir si c'est vrai.</p>
+      <figure class="pola" style="--r:-2deg" data-photo="photos/moi-cagoule.jpg" data-cap="moi pendant l'enquête (sous couverture 🕵️)"></figure>
+      <button class="btn ghost" id="verify">🔎 Lancer la vérification</button>
+      <div class="bar"><i id="verBar"></i></div>
+      <p class="result" id="verRes"></p>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 4 · Points communs -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°4 · Points communs</div>
+      <h2>On a plus en commun que tu crois.</h2>
+      <figure class="pola" style="--r:3deg" data-optional data-photo="photos/transfo.jpg" data-cap="−28 kg, pas de triche"></figure>
+      <p>📚 <b>Même parcours :</b> BUT TC tous les deux. Le destin, clairement.</p>
+      <p>💪 <b>Même mental :</b> moi j'ai perdu <span class="hl">28 kg</span>, et toi aussi t'as fait une sacrée transfo. Félicitations, vraiment. Le respect est mutuel.</p>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 5 · New York -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°5 · Destination</div>
+      <h2>Il paraît que tu pars à <span class="hl">New York</span> en novembre…</h2>
+      <p>Coïncidence : j'y suis allé. Preuves à l'appui.</p>
+      <div class="deck" id="deck"></div>
+      <div class="tap">TOUCHE LES PHOTOS ↻</div>
+      <p>S'il le faut, je prends un billet d'avion et je deviens <b>ton guide à New York City</b>.</p>
+      <p class="hand">(t'sais, le gros BDG) (je suis premier degré)</p>
+      <div class="row"><button class="btn next">Suivant →</button></div>
+    </div>
+  </section>
+
+  <!-- 6 · 2005 vs 2003 -->
+  <section class="slide">
+    <div class="card">
+      <div class="kicker">Pièce n°6 · Question technique</div>
+      <h2>Dernière vérif avant la grande question…</h2>
+      <div class="vs">
+        <div class="side"><span class="yr">2005</span><span data-face="photos/bebe.jpg" data-emoji="👶"></span><span class="small">moi</span></div>
+        <div class="mid">VS</div>
+        <div class="side"><span class="yr">2003</span><span class="em wobble">🦖</span><span class="small">toi</span></div>
+      </div>
+      <p>Est-ce qu'<b>un 2005</b> peut avoir le snap d'<b>une 2003</b> comme toi ?</p>
+      <p class="small">(je respecte les anciens, t'inquiète 🙏)</p>
+      <div class="row"><button class="btn next">Je réponds →</button></div>
+    </div>
+  </section>
+
+  <!-- 7 · La question -->
+  <section class="slide">
+    <div class="card ask">
+      <div class="kicker">La grande question · Prise 1</div>
+      <figure class="pola" style="--r:-2deg;max-width:220px" data-photo="photos/metro-no-exit.jpg" data-cap="même New York te le dit : No Exit"></figure>
+      <h1>Alors… ton snap ?</h1>
+      <div class="btns">
+        <button class="btn" id="yes">Oui 😌</button>
+        <button class="btn" id="no">Non</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · Fin OUI -->
+  <section class="slide" id="endYes">
+    <div class="card" style="text-align:center">
+      <div class="kicker">♟️ Échec et mat · Dossier clôturé</div>
+      <h1>Je savais 😌</h1>
+      <figure class="pola" style="--r:2deg" data-optional data-photo="photos/victoire.jpg" data-cap="moi en apprenant la nouvelle"></figure>
+      <p>Dernière étape, la plus simple :</p>
+      <div class="row" style="justify-content:center">
+        <a class="btn" id="snapLink" target="_blank" rel="noopener">👻 M'ajouter sur Snap</a>
+      </div>
+      <p class="small" style="margin-top:14px">Ou envoie-moi ton snap en réponse sur TikTok, je surveille mes DM 👀</p>
+    </div>
+  </section>
+
+  <!-- 9 · Fin NON -->
+  <section class="slide" id="endNo">
+    <div class="card" style="text-align:center">
+      <div class="kicker">Dossier classé sans suite</div>
+      <h1>Ok, je respecte 🫡</h1>
+      <p>Bon voyage à New York 🗽</p>
+      <p class="small">(l'offre du guide reste valable, au cas où)</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="music" id="music">
+  <div class="vid"><div id="yt"></div></div>
+  <div class="t"><b>Cléopâtre</b>Tiakola</div>
+  <button id="musicBtn" aria-label="Lecture / pause">▶</button>
+</div>
+
+<button class="back" id="back">← retour</button>
+<div class="dots" id="dots"></div>
+
+<script>
+const CONFIG = {
+  snap: "tiko_953",
+  notif: "snap-tiko-6b412ee05a9b",   // canal ntfy.sh : abonne-toi à ce nom dans l'appli ntfy
+  music: { youtubeId: "Wjve0_ts0Eo", start: 0, volume: 45 },   // Tiakola - Cléopâtre, chaîne officielle
+  ny: [
+    ["photos/ny-pizza.jpg", "la vraie pizza new-yorkaise 🍕"],
+    ["photos/ny-carlos.jpg", "Carlo's Bakery, spot validé"],
+    ["photos/ny-times-square.jpg", "Times Square, évidemment"],
+    ["photos/ny-fresque.jpg", "le spot que les touristes ratent"]
+  ]
+};
+
+/* Suivi : notifications ntfy (aucune donnée perso : juste les étapes et les clics) */
+const params = new URLSearchParams(location.search);
+const LOCAL = /^(localhost|127.0.0.1|)$/.test(location.hostname);
+const MUTE = LOCAL || params.has('moi');
+const t0 = Date.now();
+const mins = () => { const s = Math.round((Date.now() - t0) / 1000); return s < 60 ? s + ' s' : Math.floor(s / 60) + ' min ' + (s % 60) + ' s'; };
+function track(msg){
+  if (MUTE) { console.log('[suivi]', msg); return; }
+  const url = 'https://ntfy.sh/' + CONFIG.notif;
+  try { if (navigator.sendBeacon && navigator.sendBeacon(url, msg)) return; } catch(e) {}
+  try { fetch(url, { method: 'POST', body: msg, keepalive: true, mode: 'no-cors' }); } catch(e) {}
+}
+let visits = 1;
+try { visits = (+localStorage.getItem('v') || 0) + 1; localStorage.setItem('v', visits); } catch(e) {}
+track(visits === 1 ? '👀 Elle a ouvert le site !' : '👀 Elle est revenue sur le site (visite n°' + visits + ')');
+
+const slides = [...document.querySelectorAll('.slide')];
+const END_YES = slides.indexOf(document.getElementById('endYes'));
+const END_NO = slides.indexOf(document.getElementById('endNo'));
+const LAST_STEP = END_YES - 1;     // la grande question
+let cur = 0;
+
+/* Photos avec emplacement de secours */
+function photo(fig, src, cap){
+  fig.innerHTML = `<div class="ph"><img alt="" src="${src}"></div><figcaption>${cap}</figcaption>`;
+  fig.querySelector('img').onerror = function(){
+    this.parentNode.innerHTML = `<div class="missing"><div><b>📷</b>Photo à mettre :<br>${src}</div></div>`;
+  };
+}
+document.querySelectorAll('figure[data-photo]').forEach(f => {
+  photo(f, f.dataset.photo, f.dataset.cap);
+  if (f.hasAttribute('data-optional')) f.querySelector('img').addEventListener('error', () => f.remove());
+});
+
+document.querySelectorAll('[data-face]').forEach(el => {
+  const img = new Image();
+  img.className = 'face'; img.alt = '';
+  img.onload = () => el.replaceWith(img);
+  img.onerror = () => { el.className = 'em wobble'; el.textContent = el.dataset.emoji; };
+  img.src = el.dataset.face;
+});
+
+/* Navigation */
+const dots = document.getElementById('dots');
+for (let i = 0; i <= LAST_STEP; i++) dots.appendChild(document.createElement('i'));
+let maxSeen = 0, reportedAt = -1, decided = false;
+function go(n){
+  slides[cur].classList.remove('on');
+  cur = n;
+  slides[cur].classList.add('on');
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i === Math.min(cur, LAST_STEP)));
+  document.getElementById('back').style.visibility = (cur === 0 || cur > LAST_STEP) ? 'hidden' : 'visible';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (cur !== LAST_STEP) resetNo();
+  if (cur > maxSeen && cur <= LAST_STEP) {
+    maxSeen = cur;
+    if (cur === LAST_STEP) track('❓ Elle est arrivée à la grande question (' + mins() + ')');
+  }
+}
+document.querySelectorAll('.next').forEach(b => b.onclick = () => go(cur + 1));
+document.getElementById('back').onclick = () => go(Math.max(0, cur - 1));
+
+/* Jauges rigolotes */
+function gauge(barId, resId, steps, final){
+  const bar = document.getElementById(barId), res = document.getElementById(resId);
+  let p = 0, i = 0;
+  bar.style.width = '0%';
+  const t = setInterval(() => {
+    p += 2;
+    bar.style.width = p + '%';
+    const s = Math.min(steps.length - 1, Math.floor(p / (100 / steps.length)));
+    if (s !== i || p === 2) { i = s; res.textContent = steps[s]; }
+    if (p >= 100) { clearInterval(t); res.innerHTML = final; }
+  }, 45);
+}
+document.getElementById('sniff').onclick = () => gauge('sniffBar', 'sniffRes',
+  ['Connexion au nez…', 'Analyse des notes boisées…', 'Détection : zéro odeur suspecte…'],
+  'Résultat : <span class="hl">ça sent très bon.</span><br><span class="small">Bon, la techno existe pas encore. Faudra vérifier en vrai.</span>');
+document.getElementById('verify').onclick = () => gauge('verBar', 'verRes',
+  ['Analyse du profil…', 'Comparaison avec tout le monde…', 'Comparaison avec tout le reste…'],
+  '✅ Confirmé : <span class="hl">t\'es vraiment meilleure que tout le monde.</span><br><span class="small">C\'est pas un pseudo, c\'est un fait. (Validé par 3 experts : moi, moi et moi.)</span>');
+
+/* Pile de photos NY */
+const deck = document.getElementById('deck');
+const rots = [-4, 3, -2, 5, -5, 2];
+const cards = CONFIG.ny.map(([src, cap], i) => {
+  const f = document.createElement('figure');
+  f.className = 'pola';
+  f.style.setProperty('--r', rots[i % rots.length] + 'deg');
+  photo(f, src, cap);
+  deck.appendChild(f);
+  return f;
+});
+let topCard = cards.length - 1;
+function layout(){
+  cards.forEach((c, i) => {
+    const depth = (topCard - i + cards.length) % cards.length;
+    c.style.zIndex = cards.length - depth;
+    c.style.transform = `rotate(${rots[i % rots.length]}deg) translateY(${depth * 6}px) scale(${1 - depth * .03})`;
+  });
+}
+layout();
+deck.onclick = () => {
+  const c = cards[topCard];
+  c.style.transform = `translateX(120%) rotate(25deg)`;
+  setTimeout(() => { topCard = (topCard - 1 + cards.length) % cards.length; layout(); }, 260);
+};
+
+/* Le "Non" qui fuit */
+const yes = document.getElementById('yes'), no = document.getElementById('no');
+const noTexts = ['Non', "t'es sûre ?", 'réfléchis bien 🤨', 'et mes bons plans NY ?', 'le 2005 pleure 😢', '♟️ échec… mais pas mat', 'dernière chance…'];
+let tries = 0, tired = false;
+function resetNo(){
+  tries = 0; tired = false;
+  no.classList.remove('free'); no.style.left = no.style.top = '';
+  no.textContent = noTexts[0]; yes.style.transform = '';
+}
+function dodge(){
+  if (tired) return;
+  tries++;
+  const w = no.offsetWidth, h = no.offsetHeight, m = 16;
+  const r = no.getBoundingClientRect();
+  if (!no.classList.contains('free')) {
+    no.style.left = r.left + 'px'; no.style.top = r.top + 'px';
+    no.classList.add('free');
+    void no.offsetWidth;
+  }
+  let x, y, tries2 = 0;
+  do {
+    x = m + Math.random() * (innerWidth - w - 2 * m);
+    y = m + Math.random() * (innerHeight - h - 2 * m - 60);
+    tries2++;
+  } while (Math.hypot(x - r.left, y - r.top) < 140 && tries2 < 20);
+  no.style.left = x + 'px'; no.style.top = y + 'px';
+  yes.style.transform = `scale(${1 + tries * 0.18})`;
+  if (tries === 1) track('🏃 Elle essaie de cliquer sur Non…');
+  if (tries >= noTexts.length) { tired = true; no.textContent = 'ok ok je respecte 😭'; }
+  else no.textContent = noTexts[tries];
+}
+no.addEventListener('mouseenter', dodge);
+no.addEventListener('pointerdown', e => { if (!tired) { e.preventDefault(); dodge(); } });
+no.addEventListener('click', e => { if (tired) { decided = true; track('❌ Elle a cliqué Non (après ' + tries + ' fuites du bouton)'); go(END_NO); } else { e.preventDefault(); dodge(); } });
+
+yes.onclick = () => {
+  decided = true;
+  track('✅ ELLE A DIT OUI !' + (tries ? ' (après ' + tries + ' fuites du Non)' : ' (direct)'));
+  no.classList.remove('free');
+  go(END_YES);
+  confetti();
+};
+document.getElementById('snapLink').addEventListener('click', () => track('👻 Elle a cliqué « M\x27ajouter sur Snap » : regarde tes demandes d\x27ajout !'));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'hidden' || decided || reportedAt === maxSeen) return;
+  reportedAt = maxSeen;
+  const titre = slides[maxSeen].querySelector('h1,h2').textContent.trim();
+  track('👋 Elle a quitté le site à l\x27écran ' + (maxSeen + 1) + '/' + (LAST_STEP + 1) + ' « ' + titre + ' » (' + mins() + ')');
+});
+document.getElementById('snapLink').href = 'https://www.snapchat.com/add/' + encodeURIComponent(CONFIG.snap);
+
+go(0);
+
+/* Musique de fond : lecteur YouTube officiel, lancé au premier clic */
+let player = null, playerReady = false, wantPlay = false;
+const musicBtn = document.getElementById('musicBtn');
+window.onYouTubeIframeAPIReady = () => {
+  const m = CONFIG.music;
+  player = new YT.Player('yt', {
+    width: 80, height: 45, videoId: m.youtubeId,
+    playerVars: { start: m.start, loop: 1, playlist: m.youtubeId, controls: 0, playsinline: 1, rel: 0, modestbranding: 1 },
+    events: {
+      onReady: e => { playerReady = true; e.target.setVolume(m.volume); if (wantPlay) e.target.playVideo(); },
+      onStateChange: e => { musicBtn.textContent = e.data === YT.PlayerState.PLAYING ? '❚❚' : '▶'; }
+    }
+  });
+};
+const yts = document.createElement('script');
+yts.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(yts);
+function startMusic(){ wantPlay = true; if (playerReady) player.playVideo(); }
+document.querySelector('.slide .next').addEventListener('click', startMusic, { once: true });
+musicBtn.onclick = () => {
+  if (!playerReady) return startMusic();
+  player.getPlayerState() === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
+};
+
+function confetti(){
+  const em = ['👻', '💛', '🗽', '✨', '🎉', '🍎'];
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement('span');
+    s.className = 'confetti';
+    s.textContent = em[i % em.length];
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDuration = 2.2 + Math.random() * 2.5 + 's';
+    s.style.animationDelay = Math.random() * 1.2 + 's';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 6500);
+  }
+}
+</script>
+</body>
+</html>
